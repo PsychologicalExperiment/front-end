@@ -16,6 +16,31 @@
     >
     </el-input>
   </template>
+  <template v-else-if="inputItemData.type === 'radioInputGroup'">
+    <el-radio-group
+      class="input-style"
+      :label="inputItemData.label"
+      :value="inputItemData.value"
+    >
+      <el-radio
+        v-for="(label, idx) in inputItemData.labels"
+        :key="idx"
+        :label="label"
+      ></el-radio>
+    </el-radio-group>
+  </template>
+  <template v-else-if="inputItemData.type === 'selectInput'">
+    <el-select :label="inputItemData.label" :value="inputItemData.value">
+      <el-option
+        v-for="item in inputItemData.labels"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+        :disabled="item.disabled"
+      >
+      </el-option>
+    </el-select>
+  </template>
 </template>
 
 <script>

@@ -26,6 +26,8 @@ import { reactive, onMounted } from "vue";
 import inputItem from "../modules/inputItem.vue";
 import { useStore } from "vuex";
 import { NAV_MENU_OPTION_BACK_TO_HOME } from "../../constants/global";
+import { useRouter } from "vue-router";
+import { ROUTE_NAME_REGISTER } from "../../constants/global";
 
 export default {
   components: {
@@ -33,6 +35,7 @@ export default {
   },
   setup() {
     const store = useStore();
+    const router = useRouter();
     const formData = reactive([
       {
         type: "normalInput",
@@ -53,7 +56,8 @@ export default {
       console.log(formData);
     };
     const register = () => {
-      console.log("reister");
+      // console.log("reister");
+      router.push({ name: ROUTE_NAME_REGISTER });
     };
     onMounted(() => {
       store.commit("pageInfo/setNavOptionOptionList", [NAV_MENU_OPTION_BACK_TO_HOME]);
