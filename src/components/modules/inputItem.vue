@@ -16,6 +16,15 @@
     >
     </el-input>
   </template>
+  <template v-else-if="inputItemData.type == 'textareaInput'">
+    <el-input
+      class="input-style"
+      type="textarea"
+      :rows="3"
+      :placeholder="inputItemData.placeholder"
+      :value="inputItemData.value">
+    </el-input>
+  </template>
 </template>
 
 <script>

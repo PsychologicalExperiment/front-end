@@ -71,6 +71,7 @@ import { useStore } from "vuex";
 import {
   NAV_MENU_OPTION_NEW_STUDY,
   NAV_MENU_OPTION_RUNNING,
+  NAV_MENU_OPTION_HOME_PAGE,
 } from "../../constants/global";
 
 export default {
@@ -135,6 +136,7 @@ export default {
         summaryIconSize.value = Math.round(bannerIconSize.value * 0.25);
       };
       store.commit("pageInfo/setNavOptionOptionList", [
+        NAV_MENU_OPTION_HOME_PAGE,
         NAV_MENU_OPTION_NEW_STUDY,
         NAV_MENU_OPTION_RUNNING,
       ]);

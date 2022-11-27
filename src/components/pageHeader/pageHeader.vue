@@ -15,6 +15,12 @@
       >
         登录
       </el-button>
+      <user-info
+        v-else-if="isLogin"
+        class="logined-user"
+      >
+      </user-info>
+
     </div>
     <div v-if="isInHomePage" id="header-middle">
       <img class="home-page-theme" src="/pic/book-library-with-open-textbook.jpg" />
@@ -50,7 +56,12 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { computed, watch, ref, onMounted } from "vue";
 import { ROUTE_NAME_LOGIN, ROUTE_NAME_HOME } from "../../constants/global";
+import userInfo from './userInfo.vue'
+
 export default {
+  components: {
+    userInfo
+  },
   setup() {
     const store = useStore();
     const router = useRouter();
@@ -62,6 +73,7 @@ export default {
     const isShowLoginButton = computed(() => {
       return !store.state.userInfo.isLogin && route.name == ROUTE_NAME_HOME;
     });
+    const isLogin = computed(() => store.state.userInfo.isLogin)
     const loginButtonMarginTop = ref(window.innerHeight * 0.02 + "px");
     const loginButtonMarginRight = ref(window.innerWidth * 0.03 + "px");
     const handleClickLogin = () => {
@@ -114,6 +126,7 @@ export default {
       };
     });
     return {
+      isLogin,
       clickMenuItem,
       logoTopStyleVal,
       headerTopHeight,
@@ -141,6 +154,7 @@ export default {
 }
 #header-top {
   margin: 0;
+  position: relative;
 }
 #header-bottom {
   margin: 0;
@@ -165,6 +179,11 @@ export default {
 }
 .login-button {
   float: right;
+}
+.logined-user {
+  position: absolute;
+  right: 5%;
+  top: 25%;
 }
 .el-menu-item:hover,
 .el-menu-item:focus {

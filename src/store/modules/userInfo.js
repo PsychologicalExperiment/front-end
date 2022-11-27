@@ -2,12 +2,38 @@ const state = {
   email: '',
   phoneNumber: '',
   userName: '',
-  gender: 0,
-  researcherType: 0,
-  isLogin: false
+  gender: '',
+  role: '',
+  isLogin: false,
+  token: ''
+}
+
+const mutations = {
+  userLogin(state, {email, phoneNumber, userName, genderType, roleType, token}) {
+    state.email = email
+    state.phoneNumber = phoneNumber
+    state.userName = userName
+    if (genderType === 'GENDER_TYPE_MAN') {
+      state.gender = '男'
+    } else if (genderType === 'GENDER_TYPE_WOMAN') {
+      state.gender = '女'
+    } else {
+      state.gender = '未知'
+    }
+    state.token = token
+    state.isLogin = true
+    if (roleType === 'USER_TYPE_RESEARCHER') {
+      state.role = '研究者'
+    } else if (roleType === 'USER_TYPE_PARTICIPANT') {
+      state.role = '参与者'
+    } else {
+      state.role = '未知'
+    }
+  }
 }
 
 export default {
   namespaced: true,
-  state
+  state,
+  mutations,
 }

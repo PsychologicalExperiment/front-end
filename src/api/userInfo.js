@@ -1,9 +1,10 @@
 import axios from 'axios'
 
+
 // 注册函数，to do:确定参数以及参数校验
 const register = (registerParam) => {
   const param = JSON.stringify(registerParam)
-  return axios.post('/api/userInfo/register', param, {
+  return axios.post('/api/register', param, {
     headers:{
       'content-type': 'application/json'
     },
@@ -12,9 +13,9 @@ const register = (registerParam) => {
 }
 
 // 登陆函数，to do:确定参数以及参数校验
-const login = (loginParam) => {
+const loginApi = (loginParam) => {
   const param = JSON.stringify(loginParam)
-  return axios.post('/api/userInfo/login', param, {
+  return axios.post('/api/login', param, {
     headers:{
       'content-type': 'application/json'
     },
@@ -22,7 +23,8 @@ const login = (loginParam) => {
   })
 }
 
-export default(
+
+export default{
   register,
-  login
-)
+  loginApi
+}

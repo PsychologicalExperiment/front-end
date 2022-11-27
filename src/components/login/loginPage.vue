@@ -11,7 +11,7 @@
           </el-form-item>
         </el-form>
         <div id="login-button-wrapper">
-          <el-button @click="login" class="form-button" type="primary">登录</el-button>
+          <el-button @click="loginHandle" class="form-button" type="primary">登录</el-button>
         </div>
         <div id="register-button-wrapper">
           <el-button @click="register" class="form-button">注册</el-button>
@@ -26,10 +26,53 @@ import { reactive, onMounted } from "vue";
 import inputItem from "../modules/inputItem.vue";
 import { useStore } from "vuex";
 import { NAV_MENU_OPTION_BACK_TO_HOME } from "../../constants/global";
+import md5 from 'js-md5';
+import userApi from "../../api/userInfo"
+import util from '../../util/util.js'
+import { ElMessage } from 'element-plus'
+import {ROUTE_NAME_HOME} from "../../constants/global"
 
 export default {
   components: {
     inputItem,
+  },
+  methods: {
+    async loginHandle() {
+      let loginParam = {
+        account: this.formData[0].value,
+        password: md5(this.formData[1].value),
+      }
+      let [err, ret] = await util.asyncCall(userApi.loginApi(loginParam))
+      if (err) {
+        const statusCode = err.response.status
+        const errMsg = err.response.data.errMsg 
+        if (statusCode === 400) {
+          ElMessage({
+            showClose: true,
+            message: '账号或密码错误，请重新输入[' + errMsg + ']',
+            type: 'error',
+          })
+        } else {
+          ElMessage({
+            showClose: true,
+            message:'服务器错误[' + errMsg + ']，请稍后再试',
+            type: 'error',
+          })
+        }
+      } else {
+        console.log(ret)
+        const mutationParam = {
+          email: ret.data.email,
+          phoneNumber: ret.data.phone_number,
+          userName: ret.data.user_name,
+          genderType: ret.data.gender,
+          roleType: ret.data.user_type,
+          token: ret.data.authorization
+        }
+        this.$store.commit("userInfo/userLogin", mutationParam)
+        this.$router.push({ name: ROUTE_NAME_HOME })
+      }
+    }
   },
   setup() {
     const store = useStore();
@@ -49,9 +92,6 @@ export default {
         key: "password",
       },
     ]);
-    const login = () => {
-      console.log(formData);
-    };
     const register = () => {
       console.log("reister");
     };
@@ -60,14 +100,13 @@ export default {
     });
     return {
       formData,
-      login,
       register,
     };
   },
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 #login-wrapper {
   position: relative;
   left: 31%;
