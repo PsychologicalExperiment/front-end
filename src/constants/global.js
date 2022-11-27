@@ -2,6 +2,7 @@ export const ROUTE_NAME_HOME = "home"
 export const ROUTER_NAME_NEW_STUDY = "new-study"
 export const ROUTER_NAME_NEW_RUNNING = "study-running"
 export const ROUTE_NAME_LOGIN = "login"
+export const ROUTE_NAME_REGISTER = "register"
 
 export const NAV_MENU_OPTION_BACK_TO_HOME = {
   value: "返回主页",

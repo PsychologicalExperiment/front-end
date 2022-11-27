@@ -27,11 +27,11 @@ import inputItem from "../modules/inputItem.vue";
 import { useStore } from "vuex";
 import { NAV_MENU_OPTION_BACK_TO_HOME } from "../../constants/global";
 import md5 from 'js-md5';
-import userApi from "../../api/userInfo"
-import util from '../../util/util.js'
-import { ElMessage } from 'element-plus'
-import {ROUTE_NAME_HOME} from "../../constants/global"
-
+import userApi from "../../api/userInfo";
+import util from '../../util/util.js';
+import { ElMessage } from 'element-plus';
+import {ROUTE_NAME_HOME, ROUTE_NAME_REGISTER} from "../../constants/global";
+import { useRouter } from "vue-router";
 export default {
   components: {
     inputItem,
@@ -76,6 +76,7 @@ export default {
   },
   setup() {
     const store = useStore();
+    const router = useRouter();
     const formData = reactive([
       {
         type: "normalInput",
@@ -93,7 +94,8 @@ export default {
       },
     ]);
     const register = () => {
-      console.log("reister");
+      // console.log("reister");
+      router.push({ name: ROUTE_NAME_REGISTER });
     };
     onMounted(() => {
       store.commit("pageInfo/setNavOptionOptionList", [NAV_MENU_OPTION_BACK_TO_HOME]);

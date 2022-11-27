@@ -5,7 +5,7 @@
     </el-icon>
     <div class="home-page-banner-text">
       <span class="home-page-banner-span" :style="{ fontSize: bannerFontSize }">
-        快速向万名值得信赖的参与者启动您的研究。按需选择实验所需参与者或样本。前海洪兴软件外包集团为您的专业在线研究提供服务
+        快速向万名值得信赖的参与者启动您的研究。按需选择实验所需参与者或样本。爱实验系统为您的专业在线研究提供服务
       </span>
     </div>
     <div id="banner-divder">
@@ -19,13 +19,13 @@
           <expand />
         </el-icon>
         <span :style="{ fontSize: titleFontSize }" class="service-title-text">
-          上号&amp;连胜
+          特性&amp;功能
         </span>
       </div>
     </div>
     <div id="service-desc">
       <span class="service-desc-text" :style="{ fontSize: svcDescFontSize }">
-        我们的车队如何在峡谷中所向披靡
+        利用本页面进行您的研究
       </span>
     </div>
     <div id="service-content">
@@ -78,28 +78,28 @@ export default {
   setup() {
     const serviceCards = reactive([
       {
-        title: "一刀流",
-        desc: "这是一刀流的内容",
-        summary: "砍一刀",
+        title: "功能一",
+        desc: "这是功能一的内容",
+        summary: "查看详情",
         pic: "/pic/desc1.jpeg",
       },
       {
-        title: "二刀流",
+        title: "功能二",
         desc:
-          "这是二刀流的内容，这是二刀流的内容，这是二刀流的内容（测试长一点的文本测试长一点的文本测试长一点的文本测试长一点的文本）",
-        summary: "砍二刀",
+          "这是功能二的内容，这是功能二的内容，这是功能二的内容（测试长一点的文本测试长一点的文本测试长一点的文本测试长一点的文本）",
+        summary: "查看详情",
         pic: "/pic/desc2.jpeg",
       },
       {
-        title: "三刀流",
-        desc: "这是三刀流的内容，这是三刀流的内容",
-        summary: "砍三刀",
+        title: "功能三",
+        desc: "这是功能三的内容，这是功能三的内容",
+        summary: "查看详情",
         pic: "/pic/desc3.jpeg",
       },
       {
-        title: "绿藻头",
-        desc: "这是绿藻头的内容，这是三刀流的内容",
-        summary: "绿藻头",
+        title: "功能四",
+        desc: "这是功能四的内容，这是功能四的内容",
+        summary: "查看详情",
         pic: "/pic/desc4.jpeg",
       },
     ]);
