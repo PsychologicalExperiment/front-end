@@ -1,5 +1,5 @@
 module.exports = {
-  publicPath: './',
+  publicPath: process.env.NODE_ENV === 'production' ? '/usr/local/app/psychology-front-end' : './build',
 	devServer: {
 		open: true,
 		host: '127.0.0.1',

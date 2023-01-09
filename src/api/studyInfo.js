@@ -19,12 +19,13 @@ const getStudyList = ({studyListParam}) => {
   })
 }
 
-const createStudy = ({title, description, experiment_time, participant_num}) => {
+const createStudy = ({title, description, experiment_time, participant_num, price}) => {
   const param = {
     title,
     description,
     experiment_time,
     participant_num,
+    price
   }
   const jsonParam = JSON.stringify(param)
   return axios.post('/api/save_experiment', jsonParam, {
