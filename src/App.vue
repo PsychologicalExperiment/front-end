@@ -1,17 +1,25 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <page-header></page-header>
+  <router-view></router-view>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import PageHeader from "./components/pageHeader/pageHeader.vue";
+import { RouterView } from "vue-router";
+import { onMounted } from 'vue'
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
+    RouterView,
+    PageHeader,
+  },
+  setup() {
+    onMounted(() => {
+      document.body.style.setProperty('--el-color-primary', '#F1D160');
+    })
   }
-}
+};
 </script>
 
 <style>
@@ -21,6 +29,14 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin: 0;
+  height: 100%;
+}
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+  background-color: #f9f9f9;
 }
 </style>
