@@ -25,7 +25,7 @@
       </div>
     </div>
   </div>
-  <div class="study-box-button">
+  <div class="study-box-button" @click="clickShowDetail">
     <span class="study-botton-title">查看详情</span>
     <el-icon color='#F9D88F' :size="studyIconSize" class="study-botton-content">
       <caret-right/>
@@ -35,6 +35,12 @@
 
 <script>
 import { onMounted, ref } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import { 
+  ROUTE_NAME_STUDY_MANAGEMENT,
+  ROUTE_NAME_STUDY_DETAIL,
+} from "../../constants/global";
 
 export default {
   name: "studyItem",
@@ -43,7 +49,7 @@ export default {
       type: Object,
     },
   },
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const updateValue = (value, event) => {
       console.log(value);
       emit(event, value);
@@ -51,16 +57,39 @@ export default {
     const cardTitleFontSize = ref(window.innerWidth * 0.0006 + "em");
     const studyIconSize = ref(Math.round(window.innerWidth * 0.0175));
     const searchIconSize = ref(Math.round(window.innerWidth * 0.015));
+    const store = useStore();
+    const router = useRouter();
+    const clickShowDetail = () => {
+      const role = store.state.userInfo.role
+      if (role === '研究者') {
+        router.push({
+          name: ROUTE_NAME_STUDY_MANAGEMENT, 
+          params:{
+            id: props.studyItemData.expId,
+          },
+        })
+      } else if (role === '参与者') {
+        router.push({
+          name: ROUTE_NAME_STUDY_DETAIL, 
+          params:{
+            id: props.studyItemData.expId,
+          },
+        })
+      }
+    }
     onMounted(() => {
-      cardTitleFontSize.value = window.innerWidth * 0.0006 + "em";
-      studyIconSize.value = Math.round(window.innerWidth * 0.02);
-      searchIconSize.value = Math.round(window.innerWidth * 0.015);
+      window.onresize = () => {
+        cardTitleFontSize.value = window.innerWidth * 0.0006 + "em";
+        studyIconSize.value = Math.round(window.innerWidth * 0.02);
+        searchIconSize.value = Math.round(window.innerWidth * 0.015);
+      };
     });
     return {
       updateValue,
       cardTitleFontSize,
       studyIconSize,
       searchIconSize,
+      clickShowDetail,
     };
   },
 }
@@ -130,6 +159,17 @@ export default {
   width: 100%;
   position: relative;
   height: 14%;
+}
+.study-box-button:hover {
+  cursor: pointer; 
+  cursor: hand;
+  background-color: #FFFFFF;
+  display: table;
+  width: 100%;
+  position: relative;
+  height: 14%;
+  transform: scale(1.03);
+  box-shadow: 0 0 1px 1px #F9D88F;
 }
 .study-box-button .study-botton-title {
   text-align: left;

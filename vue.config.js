@@ -1,4 +1,5 @@
 module.exports = {
+  publicPath: './',
 	devServer: {
 		open: true,
 		host: '127.0.0.1',
@@ -6,14 +7,13 @@ module.exports = {
 		https: false,
 		proxy: {//配置跨域
 			'/api': {
-				target: 'http://118.195.204.214:3000/',
+				target: 'http://159.75.15.177:6000/',
 				ws: true,
 				changOrigin: true,//允许跨域
 				pathRewrite: {
 					'^/api': '/api'//请求的时候使用这个api就可以
 				}
 			}
-			
 		}
 	}
 }

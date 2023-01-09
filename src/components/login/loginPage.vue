@@ -66,11 +66,11 @@ export default {
           phoneNumber: ret.data.phone_number,
           userName: ret.data.user_name,
           genderType: ret.data.gender,
-          roleType: ret.data.user_type,
-          token: ret.data.authorization
+          roleType: ret.data.user_type
         }
         this.$store.commit("userInfo/userLogin", mutationParam)
         this.$router.push({ name: ROUTE_NAME_HOME })
+        console.log(document.cookie)
       }
     }
   },

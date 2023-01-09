@@ -13,6 +13,7 @@ const mutations = {
     state.email = email
     state.phoneNumber = phoneNumber
     state.userName = userName
+    state.token = token
     if (genderType === 'GENDER_TYPE_MAN') {
       state.gender = '男'
     } else if (genderType === 'GENDER_TYPE_WOMAN') {
@@ -20,7 +21,6 @@ const mutations = {
     } else {
       state.gender = '未知'
     }
-    state.token = token
     state.isLogin = true
     if (roleType === 'USER_TYPE_RESEARCHER') {
       state.role = '研究者'

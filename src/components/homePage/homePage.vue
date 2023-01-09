@@ -68,11 +68,6 @@
 <script>
 import { reactive, onMounted, ref } from "vue";
 import { useStore } from "vuex";
-import {
-  NAV_MENU_OPTION_NEW_STUDY,
-  NAV_MENU_OPTION_RUNNING,
-  NAV_MENU_OPTION_HOME_PAGE,
-} from "../../constants/global";
 
 export default {
   setup() {
@@ -119,6 +114,7 @@ export default {
     //24为element-ui el-row总长度
     const cardSpanLen = ref(5);
     const store = useStore();
+    const navs = store.getters['pageInfo/getNavOptionsByRole'](store.state.userInfo.role);
     onMounted(() => {
       window.onresize = () => {
         bannerIconSize.value = Math.round(window.innerWidth * 0.07);
@@ -135,11 +131,7 @@ export default {
         summaryFontSize.value = window.innerWidth * 0.00075 + "em";
         summaryIconSize.value = Math.round(bannerIconSize.value * 0.25);
       };
-      store.commit("pageInfo/setNavOptionOptionList", [
-        NAV_MENU_OPTION_HOME_PAGE,
-        NAV_MENU_OPTION_NEW_STUDY,
-        NAV_MENU_OPTION_RUNNING,
-      ]);
+      store.commit("pageInfo/setNavOptionOptionList", navs);
     });
     return {
       serviceCards,

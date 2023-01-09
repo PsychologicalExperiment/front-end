@@ -6,6 +6,7 @@
 <script>
 import PageHeader from "./components/pageHeader/pageHeader.vue";
 import { RouterView } from "vue-router";
+import { onMounted } from 'vue'
 
 export default {
   name: "App",
@@ -13,9 +14,13 @@ export default {
     RouterView,
     PageHeader,
   },
+  setup() {
+    onMounted(() => {
+      document.body.style.setProperty('--el-color-primary', '#F1D160');
+    })
+  }
 };
 </script>
-PageHeader
 
 <style>
 #app {

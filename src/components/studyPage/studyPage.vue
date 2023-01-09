@@ -30,7 +30,7 @@
     <div id="study-page-body">
       <el-row class="study-page-row">
         <el-col
-          v-for="(item, index) in firstRow"
+          v-for="(item, index) in rowData.firstRow"
           :key="index"
           :span="cardSpanLen"
           :offset="index > 0 ? 1 : 0"
@@ -40,7 +40,7 @@
       </el-row>
       <el-row class="study-page-row">
         <el-col
-          v-for="(item, index) in secondRow"
+          v-for="(item, index) in rowData.secondRow"
           :key="index"
           :span="cardSpanLen"
           :offset="index > 0 ? 1 : 0"
@@ -49,12 +49,28 @@
         </el-col>
       </el-row>
     </div>
+    <div id="study-page-bottom">
+      <el-pagination
+        class="study-page-pagination"
+        background 
+        layout="prev, pager, next" 
+        :page-count=pageNum
+        @current-change="paginationClick"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { useStore } from "vuex";
+import { ElMessageBox } from 'element-plus'
 import studyItem from './studyItem.vue'
+import util from '../../util/util.js'
+import {
+  STUDY_RUNNING_ITEM_NUM,
+  STUDY_RUNNING_CACHE_NUM,
+} from '../../constants/global'
 export default {
   components: {
     studyItem,
@@ -63,6 +79,7 @@ export default {
     const dateVal = ref('')
     const priceVal = ref('')
     const cardSpanLen = ref(6);
+    const pageNum = ref(0)
     const headerFontSize = ref(window.innerWidth * 0.0006 + "em");
     const priceOptions = [
       {
@@ -78,36 +95,11 @@ export default {
         value: 'larger_than_hundred'
       }
     ]
-    const firstRow = [
-      {
-        title: '研究测试样例，这是一条研究，研究主题是如何开发一个实验招募系统，测试测试测试',
-        duration: '30分钟',
-        price: '$30'
-      },
-      {
-        title: '研究测试样例，这是一条研究，研究主题是猫猫为何怕我，测试测试测试',
-        duration: '10分钟',
-        price: '$50'
-      },
-      {
-        title: '研究测试样例，这是一条研究，研究主题伊布怎么进化成仙子伊布，测试测试测试',
-        duration: '1小时',
-        price: '$100'
-      }
-    ]
-    const secondRow = [
-      {
-        title: '研究测试样例，这是一条研究，研究主题是如何开发一个实验招募系统2，测试测试测试',
-        duration: '30分钟',
-        price: '$30'
-      },
-      {
-        title: '研究测试样例，这是一条研究，研究主题是猫猫为何怕我2，测试测试测试',
-        duration: '10分钟',
-        price: '$50'
-      }
-    ]
-  const shortcuts = [
+    const rowData = reactive({
+      firstRow: [],
+      secondRow: []
+    })
+    const shortcuts = [
       {
         text: 'Last week',
         value: () => {
@@ -136,8 +128,65 @@ export default {
         },
       },
     ]
+    const store = useStore();
+    const getRows = async () => {
+      console.log('getRows')
+      const listParam = {
+        page_index: 0,
+        page_size: STUDY_RUNNING_CACHE_NUM,
+      }
+      const [err] = await util.asyncCall(
+        store.dispatch('studyInfo/getStudyListFromServer',
+        {
+          listParam,
+        })
+      )
+      if (err) {
+        console.log(err)
+        ElMessageBox.alert('网络错误' + ' ,请刷新页面', '网络错误')
+      }
+      const rows = store.getters['studyInfo/getStudyRowsByPageId'](1)
+      pageNum.value = Math.ceil(store.state.studyInfo.studyListCnt / STUDY_RUNNING_ITEM_NUM)
+      console.log(pageNum.value)
+      rowData.firstRow = rows.firstRow
+      rowData.secondRow = rows.secondRow
+    };
+    const paginationClick = async (pageNum) => {
+      console.log(pageNum)
+      const {start, len} = store.getters['studyInfo/getCurrentStudyPageRange']
+      console.log(start, len)
+      if (pageNum >= start && pageNum < start + len) {
+        console.log('in cache')
+        const rows = store.getters['studyInfo/getStudyRowsByPageId'](pageNum)
+        rowData.firstRow = rows.firstRow
+        rowData.secondRow = rows.secondRow
+      } else {
+        const batchNum = STUDY_RUNNING_CACHE_NUM / STUDY_RUNNING_ITEM_NUM
+        const startIdx = (Math.ceil(pageNum / batchNum) - 1) * STUDY_RUNNING_CACHE_NUM
+        console.log('out cache', batchNum, startIdx)
+        const [err] = await util.asyncCall(
+          store.dispatch('studyInfo/getStudyListFromServer', {
+            listParam: {
+              page_index: startIdx,
+              page_size: STUDY_RUNNING_CACHE_NUM,
+          }})
+        )
+        if (err) {
+          console.log(err)
+          ElMessageBox.alert('网络错误' + ' ,请刷新页面', '网络错误')
+        }
+        const rows = store.getters['studyInfo/getStudyRowsByPageId'](pageNum)
+        rowData.firstRow = rows.firstRow
+        rowData.secondRow = rows.secondRow
+      }
+    }
+    const navs = store.getters['pageInfo/getNavOptionsByRole'](store.state.userInfo.role);
     onMounted(() => {
-      headerFontSize.value = ref(window.innerWidth * 0.0012 + "em");
+      window.onresize = () => {
+        headerFontSize.value = window.innerWidth * 0.0006 + "em";
+      }
+      getRows();
+      store.commit("pageInfo/setNavOptionOptionList", navs);
     });
     return{
       dateVal,
@@ -145,9 +194,10 @@ export default {
       priceVal,
       headerFontSize,
       shortcuts,
-      firstRow,
+      rowData,
       cardSpanLen,
-      secondRow,
+      pageNum,
+      paginationClick,
     };
   }
 }
@@ -171,8 +221,33 @@ export default {
 #study-page-body {
   position: relative;
   height: 90%;
-  width: 90%;
   left: 5%;
+}
+#study-page-bottom .study-page-pagination {
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+  
+  display: -moz-box;
+  -moz-box-orient: horizontal;
+  -moz-box-pack: center;
+  -moz-box-align: center;
+  
+  display: -o-box;
+  -o-box-orient: horizontal;
+  -o-box-pack: center;
+  -o-box-align: center;
+  
+  display: -ms-box;
+  -ms-box-orient: horizontal;
+  -ms-box-pack: center;
+  -ms-box-align: center;
+  
+  display: box;
+  box-orient: horizontal;
+  box-pack: center;
+  box-align: center;
 }
 #study-page-header .study-page-date{
   display: table-row;

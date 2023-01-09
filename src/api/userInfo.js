@@ -23,7 +23,6 @@ const loginApi = (loginParam) => {
   })
 }
 
-
 export default{
   register,
   loginApi
