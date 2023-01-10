@@ -1,7 +1,7 @@
 node {
   stage('Build') {
       sh 'cd front-end'
-      sh 'git pull'
+      sh 'git pull origin main'
       sh 'npm install'
       sh 'npm run build'
   }
