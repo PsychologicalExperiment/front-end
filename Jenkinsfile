@@ -1,16 +1,13 @@
-pipeline {
-    agent {
-        docker {
-            image 'node:lts-bullseye-slim' 
-            args '-u root:root -p 9899:9899' 
-        }
+node {
+  stage('Build') {
+    steps {
+      sh 'npm install'
+      sh 'npm run build'
     }
-    stages {
-        stage('Build') { 
-            steps {
-                sh 'npm install'
-		sh 'npm run build' 
-            }
-        }
+  }
+  stage('Deploy') {
+    steps {
+      sh 'cp -r dist/* /psychology/
     }
+  }
 }
