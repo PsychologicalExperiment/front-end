@@ -3,7 +3,7 @@ pipeline {
    stages {
      stage('build') {
         steps {
-           sh 'npm cache clean --force'
+           sh 'sudo chown -R 984:980 "/.npm"'
            sh 'npm install'
            sh 'npm run build'
         }
