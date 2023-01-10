@@ -7,6 +7,5 @@ node {
   }
   stage('Deploy') {
       sh 'cp -r dist/* /psychology/'
-      sh 'rm -rf front-end'
   }
 }
