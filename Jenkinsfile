@@ -6,6 +6,6 @@ node {
       sh 'npm run build'
   }
   stage('Deploy') {
-      sh 'cp -r dist/* /psychology/'
+      sh 'cp -r front-end/dist/* /psychology/'
   }
 }
