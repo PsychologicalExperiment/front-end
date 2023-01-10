@@ -8,9 +8,8 @@ pipeline {
     stages {
         stage('Build') { 
             steps {
-                sh 'rm -rf /var/lib/jenkins/workspace/_main/node_modules'
-		sh 'npm remove package-lock.json'
-                sh 'npm install' 
+                sh 'npm install'
+		sh 'npm run build' 
             }
         }
     }
