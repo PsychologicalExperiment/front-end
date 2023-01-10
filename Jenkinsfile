@@ -1,7 +1,7 @@
 node {
   stage('Build') {
-      sh 'git clone git@github.com:PsychologicalExperiment/front-end.git'
       sh 'cd front-end'
+      sh 'git pull'
       sh 'npm install'
       sh 'npm run build'
   }
