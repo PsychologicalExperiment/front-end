@@ -7,7 +7,7 @@ node {
   }
   stage('Deploy') {
     steps {
-      sh 'cp -r dist/* /psychology/
+      sh 'cp -r dist/* /psychology/'
     }
   }
 }
