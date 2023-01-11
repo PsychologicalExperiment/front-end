@@ -1,4 +1,7 @@
 node {
+  stage('Checkout') {
+     git url: 'git@github.com:PsychologicalExperiment/front-end.git'
+  }
   stage('Build') {
       sh 'npm install'
       sh 'npm run build'
