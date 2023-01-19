@@ -55,7 +55,7 @@
                 <p class="detail-info">{{expData.detail}}</p>
               </div>
               <div class="detail-icon">
-                <el-button circle="true" color="#F0D060">
+                <el-button :circle="true" color="#F0D060">
                   <el-icon style="vertical-align: middle">
                     <monitor />
                   </el-icon>
@@ -92,18 +92,34 @@
 </template>
 
 <script>
-import {onMounted, ref} from "vue";
+import {onMounted, ref, reactive} from "vue";
 import { useStore } from "vuex";
+import { ElMessageBox } from 'element-plus'
+import util from '../../util/util.js'
 
 export default {
   setup() {
-    const expData = {
-      title: '一项关于冰淇淋的研究',
-      duration: '2分钟',
-      price: '$0.18',
-      detail: '在两分钟的实验中，我们将要求您回答有关产品的几个问题，请注意，您需要一台电脑才能参与这项研究',
-    }
+    const expData = reactive({
+      title: '',
+      duration: '',
+      price: '',
+      detail: '',
+    })
     const store = useStore();
+    const getExpData = async() => {
+      console.log('getExpData')
+      const [err] = await util.asyncCall(
+        store.dispatch('studyInfo/getStudyDetailFromServer')
+      )
+      if (err) {
+        console.log(err)
+        ElMessageBox.alert('网络错误' + ' ,请刷新页面', '网络错误')
+      }
+      expData.title = store.state.studyInfo.studyDetail.title
+      expData.duration = store.state.studyInfo.studyDetail.duration
+      expData.price = store.state.studyInfo.studyDetail.price
+      expData.detail = store.state.studyInfo.studyDetail.detail
+    }
     const detailIconSize = ref(Math.round(window.innerWidth * 0.025))
     const briefContentFontSize = ref(window.innerWidth * 0.00046 + "em");
     const briefTitleFontSize = ref(window.innerWidth * 0.00045 + "em");
@@ -115,6 +131,7 @@ export default {
         briefTitleFontSize.value = window.innerWidth * 0.00045 + "em"
       }
       store.commit("pageInfo/setNavOptionOptionList", navs);
+      getExpData();
     })
     return {
       expData,

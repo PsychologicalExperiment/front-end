@@ -19,6 +19,18 @@ const getStudyList = ({studyListParam}) => {
   })
 }
 
+const getStudyDetail = ({experiment_id}) => {
+  const param = JSON.stringify({
+    experiment_id,
+  })
+  return axios.post('/api/query_experiment', param, {
+    headers:{
+      'content-type': 'application/json',
+    },
+    withCredentials: true
+  })
+}
+
 const createStudy = ({title, description, experiment_time, participant_num, price}) => {
   const param = {
     title,
@@ -36,7 +48,23 @@ const createStudy = ({title, description, experiment_time, participant_num, pric
   })
 }
 
+const getRecordList = ({experiment_id, page_index, page_size}) => {
+  const param = JSON.stringify({
+    experiment_id,
+    page_index,
+    page_size,
+  })
+  return axios.post('/api/query_record_list', param, {
+    headers: {
+      'content-type': 'application/json',
+    },
+    withCredentials: true
+  })
+}
+
 export default{
   getStudyList,
   createStudy,
+  getStudyDetail,
+  getRecordList,
 }

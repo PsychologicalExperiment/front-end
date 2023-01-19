@@ -31,8 +31,25 @@ const setCookie = ({key, value, expireDays}) => {
   document.cookie = key + "=" + encodeURI(value) + ((expireDays == null) ? "" : ";expires=" + exdate.toGMTString())
 }
 
+const isEmail = (email) => {
+  let regx = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i
+  return regx.test(email)
+}
+
+const parseDuration = (timeSec) => {
+  if (timeSec < 0) {
+    return '--'
+  }
+  const h = Math.floor((timeSec / 3600)).toString()
+  const m = Math.floor((timeSec / 60 % 60)).toString()
+  const s = Math.floor((timeSec % 60)).toString()
+  return h + 'h ' + m + 'm ' + s + 's'
+}
+
 export default{
   asyncCall,
   getCookie,
-  setCookie
+  setCookie,
+  isEmail,
+  parseDuration,
 }

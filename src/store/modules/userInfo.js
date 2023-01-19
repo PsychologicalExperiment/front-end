@@ -29,6 +29,15 @@ const mutations = {
     } else {
       state.role = '未知'
     }
+  },
+  userLogout(state) {
+    state.email = ''
+    state.phoneNumber = ''
+    state.userName = ''
+    state.token = ''
+    state.gender = ''
+    state.isLogin = false
+    state.role = ''
   }
 }
 

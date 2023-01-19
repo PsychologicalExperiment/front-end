@@ -1,5 +1,4 @@
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? './' : './build',
 	devServer: {
 		open: true,
 		host: '127.0.0.1',

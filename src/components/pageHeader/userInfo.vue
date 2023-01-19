@@ -18,6 +18,15 @@
       <div>{{ '电子邮箱：' + userMsg.email }}</div>
       <div>{{ '用户性别：' + userMsg.gender }}</div>
       <div>{{ '用户类型：' + userMsg.role }}</div>
+      <div id="logout-wrapper">
+        <el-button
+          :icon="SwitchButton" 
+          class="logout-button"
+          @click="clickLogout"
+        >
+          退出登陆
+        </el-button>
+      </div>
     </el-card>
   </el-popover>
   </div>
@@ -27,23 +36,46 @@
 import { reactive } from "vue";
 import { useStore } from "vuex";
 import { UserFilled } from '@element-plus/icons-vue';
+import { SwitchButton } from '@element-plus/icons-vue';
+import userApi from "../../api/userInfo";
+import util from '../../util/util.js';
+import { ElMessage } from 'element-plus';
 
 export default {
   name: "userInfo",
   setup() {
     const store = useStore();
     const userMsg = reactive({...store.state.userInfo})
-    console.log(userMsg)
+    const clickLogout = async () => {
+      const [err] = await util.asyncCall(userApi.logout())
+      if (err) {
+        ElMessage({
+          showClose: true,
+          message: '账号或密码错误，请重试',
+          type: 'error',
+        })
+        return
+      }
+      store.commit("userInfo/userLogout")
+    } 
     return {
       userMsg,
-      UserFilled
+      UserFilled,
+      SwitchButton,
+      clickLogout,
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
 .card-header span{
   font-weight: bold;
+}
+#logout-wrapper {
+  margin-top: 15px;
+}
+#logout-wrapper .logout-button{
+  margin-left: 50%;
 }
 </style>

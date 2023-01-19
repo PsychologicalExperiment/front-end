@@ -23,7 +23,29 @@ const loginApi = (loginParam) => {
   })
 }
 
+const sendVerifyCode = (email) => {
+  const param = JSON.stringify(
+    {
+      email,
+    }
+  )
+  return axios.post('/api/verify_email', param, {
+    headers:{
+      'content-type': 'application/json'
+    },
+    withCredentials: true
+  })
+}
+
+const logout = () => {
+  return axios.post('/api/logout', null, {
+    withCredentials: true,
+  })
+}
+
 export default{
   register,
-  loginApi
+  loginApi,
+  sendVerifyCode,
+  logout,
 }

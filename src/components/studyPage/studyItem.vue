@@ -27,9 +27,6 @@
   </div>
   <div class="study-box-button" @click="clickShowDetail">
     <span class="study-botton-title">查看详情</span>
-    <el-icon color='#F9D88F' :size="studyIconSize" class="study-botton-content">
-      <caret-right/>
-    </el-icon>
   </div>
 </template>
 
@@ -61,6 +58,7 @@ export default {
     const router = useRouter();
     const clickShowDetail = () => {
       const role = store.state.userInfo.role
+      store.commit("studyInfo/setCurrentExpId", {id: props.studyItemData.expId})
       if (role === '研究者') {
         router.push({
           name: ROUTE_NAME_STUDY_MANAGEMENT, 
@@ -178,7 +176,7 @@ export default {
   float: left;
   position: relative;
   top: 30%;
-  left: 5%;
+  left: 40%;
 }
 .study-box-button .study-botton-content {
   align-items: center;

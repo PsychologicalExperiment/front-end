@@ -147,7 +147,6 @@ export default {
       }
       const rows = store.getters['studyInfo/getStudyRowsByPageId'](1)
       pageNum.value = Math.ceil(store.state.studyInfo.studyListCnt / STUDY_RUNNING_ITEM_NUM)
-      console.log(pageNum.value)
       rowData.firstRow = rows.firstRow
       rowData.secondRow = rows.secondRow
     };
@@ -280,5 +279,13 @@ export default {
 }
 .study-page-row{
   height: 50%;
+}
+/deep/ .el-pagination.is-background .el-pager li:not(.is-disabled).is-active {
+  background-color: #F1D160;
+  color: var(--el-color-white);
+  font-weight: 700;
+}
+/deep/ .el-pagination.is-background .el-pager li:not(.is-disabled):hover {
+  color: #F1D160;
 }
 </style>

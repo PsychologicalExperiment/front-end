@@ -1,7 +1,7 @@
 <template>
   <div id="manager-page">
     <div id="manager-header">
-      <manager-head :studyBasicInfo="studyBasicInfo"></manager-head>
+      <manager-head :studyBasicInfo="pageData.studyBasicInfo"></manager-head>
     </div>
     <div id="manager-table-head">
       <el-tabs v-model="activeName" class="manager-tab" @tab-click="tabClick">
@@ -56,6 +56,7 @@
           type="primary" 
           :icon="Search" 
           class="search-button"
+          color="#F1D160"
         >
           查询
         </el-button>
@@ -63,7 +64,7 @@
       </div>
     </div>
     <div id="manager-table">
-      <manager-table :tableData="tableData"></manager-table>
+      <manager-table :tableData="pageData.manageTableList"></manager-table>
     </div>
   </div>
   <div id="manager-page-bottom">
@@ -71,7 +72,7 @@
       class="manager-page-pagination"
       background 
       layout="prev, pager, next" 
-      :page-count="5"
+      :page-count=pageNum
     />
   </div>
 </template>
@@ -79,66 +80,63 @@
 <script>
 import managerHead from './managerHead.vue'
 import managerTable from './managerTable.vue'
-import { onMounted, ref } from 'vue'
+import util from '../../util/util.js';
+import {
+  MANAGE_TABLE_CACHE_NUM,
+  MANAGE_TABLE_ROW_NUM,
+} from '../../constants/global'
+import { onMounted, ref, reactive } from 'vue'
 import { useStore } from "vuex";
 import { Search } from '@element-plus/icons-vue'
+
 export default {
   components: {
     managerHead,
     managerTable
   },
   setup() {
-    const activateName = ref('unpaid')
+    const activeName = ref('unpaid')
     const dateVal = ref('')
-    const studyBasicInfo = {
-      progress: 30.00,
-      publishTime: '2022-12-18',
-      eligible: '10',
-      reward: '$30',
-      otherInfo: '无',
-    }
-    const tableData = [
+    const pageNum = ref(0)
+    const shortcuts = [
       {
-        uid: '5fcfcfc1c5aaa211308f4a1d2',
-        name: '坤坤',
-        startTime: '2023-01-01 00:00:00',
-        usedTime: '10m 20s',
-        progress: '50%',
-        status: '已批准',
+        text: 'Last week',
+        value: () => {
+          const end = new Date()
+          const start = new Date()
+          start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+          return [start, end]
+        },
       },
       {
-        uid: '5fcfcfc1c5aaa211308f4a1d2',
-        name: '坤坤',
-        startTime: '2023-01-01 00:00:00',
-        usedTime: '10m 20s',
-        progress: '50%',
-        status: '已批准',
+        text: 'Last month',
+        value: () => {
+          const end = new Date()
+          const start = new Date()
+          start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+          return [start, end]
+        },
       },
       {
-        uid: '5fcfcfc1c5aaa211308f4a1d2',
-        name: '坤坤',
-        startTime: '2023-01-01 00:00:00',
-        usedTime: '10m 20s',
-        progress: '50%',
-        status: '已批准',
+        text: 'Last 3 months',
+        value: () => {
+          const end = new Date()
+          const start = new Date()
+          start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+          return [start, end]
+        },
       },
-      {
-        uid: '5fcfcfc1c5aaa211308f4a1d2',
-        name: '坤坤',
-        startTime: '2023-01-01 00:00:00',
-        usedTime: '10m 20s',
-        progress: '50%',
-        status: '已批准',
-      },
-      {
-        uid: '5fcfcfc1c5aaa211308f4a1d2',
-        name: '坤坤',
-        startTime: '2023-01-01 00:00:00',
-        usedTime: '10m 20s',
-        progress: '50%',
-        status: '进行中',
-      }
     ]
+    const pageData = reactive({
+      studyBasicInfo: {
+        progress: 0.00,
+        publishTime: '',
+        eligible: '',
+        reward: '',
+        otherInfo: ''
+      },
+      manageTableList: []
+    })
     const checkedGenders = ref([])
     const checkedDurations = ref([])
     const genders = ['男性', '女性']
@@ -147,21 +145,45 @@ export default {
     const tabClick = (tab, event) => {
       console.log(tab, event)
     }
+    const loadTableDatas = async () => {
+      const [err] = await util.asyncCall(
+        store.dispatch('studyInfo/getRecordListFromServer', {
+          page_index: 0,
+          page_size: MANAGE_TABLE_CACHE_NUM,
+      }))
+      if (err) {
+        console.log(err)
+      }
+      pageData.manageTableList = store.state.studyInfo.manageTableList
+      pageNum.value = Math.ceil(store.state.studyInfo.manageTableListCnt / MANAGE_TABLE_ROW_NUM)
+    }
+    const loadStudyBasicInfo = async () => {
+      const [err] = await util.asyncCall(
+        store.dispatch('studyInfo/getManageInfoFromServer')
+      )
+      if (err) {
+        console.log(err)
+      }
+      pageData.studyBasicInfo = store.state.studyInfo.manageInfo
+    }
     const navs = store.getters['pageInfo/getNavOptionsByRole'](store.state.userInfo.role);
     onMounted(() => {
       store.commit("pageInfo/setNavOptionOptionList", navs);
+      loadTableDatas()
+      loadStudyBasicInfo()
     });
     return {
-      tableData,
-      studyBasicInfo,
-      activateName,
+      pageData,
+      activeName,
       tabClick,
       dateVal,
       checkedGenders,
       genders,
+      shortcuts,
       checkedDurations,
       durations,
       Search,
+      pageNum,
     }
   }
 }
@@ -299,7 +321,7 @@ export default {
   right: 3%;
 }
 #duration-checkbox{
-  width: 33%;
+  width: 40%;
   position: absolute;
   height: 33%;
   bottom: 1%;
@@ -325,5 +347,30 @@ export default {
 }
 #manager-search-buttons .search-button {
   margin-right: 10%;
+}
+/deep/ .el-pagination.is-background .el-pager li:not(.is-disabled).is-active {
+  background-color: #F1D160;
+  color: var(--el-color-white);
+  font-weight: 700;
+}
+/deep/ .el-pagination.is-background .el-pager li:not(.is-disabled):hover {
+  color: #F1D160;
+}
+/deep/ .el-tabs__item:hover {
+  color: #F1D160;
+  cursor: pointer;
+}
+/deep/ .el-tabs__item.is-active {
+  color: #F1D160;
+}
+/deep/ .el-tabs__active-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background-color: #F1D160;
+  z-index: 1;
+  transition: width var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier),transform var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier);
+  list-style: none;
 }
 </style>

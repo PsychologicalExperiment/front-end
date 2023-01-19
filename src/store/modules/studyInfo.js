@@ -1,9 +1,30 @@
 import {
   STUDY_RUNNING_ITEM_NUM,
   MANAGE_TABLE_ROW_NUM,
+  STATE_RECORD_INIT,
+  STATE_RECORD_FINISHED,
+  STATE_RECORD_APPROVED,
+  STATE_RECORD_TIMEOUT,
+  STATE_RECORD_RETURNED,
 } from '../../constants/global'
 import studyApi from "../../api/studyInfo"
 import util from '../../util/util.js'
+
+const tagMap = new Map([
+  [STATE_RECORD_INIT, ''],
+  [STATE_RECORD_FINISHED, 'warning'],
+  [STATE_RECORD_APPROVED, 'success'],
+  [STATE_RECORD_TIMEOUT, 'danger'],
+  [STATE_RECORD_RETURNED, 'info'],
+])
+
+const statusMap = new Map([
+  [STATE_RECORD_INIT, '进行中'],
+  [STATE_RECORD_FINISHED, '已完成'],
+  [STATE_RECORD_APPROVED, '已批准'],
+  [STATE_RECORD_TIMEOUT, '已超时'],
+  [STATE_RECORD_RETURNED, '已拒绝'],
+])
 
 const state = {
   //服务器totalNum
@@ -36,16 +57,7 @@ const state = {
   },
   manageTableListCnt: 0,
   manageTableListStartIdx: 0,
-  manageTableList: [
-    {
-      uid: '5fcfcfc1c5aaa211308f4a1d2',
-      name: '坤坤',
-      startTime: '2023-01-01 00:00:00',
-      usedTime: '10m 20s',
-      progress: '50%',
-      status: '已批准',
-    }
-  ]
+  manageTableList: []
 }
 
 const mutations = {
@@ -72,6 +84,9 @@ const mutations = {
   },
   setManageTableList(state,{manageTableList}) {
     state.manageTableList = manageTableList
+  },
+  setManageTableListStartIdx(state, {startIdx}) {
+    state.manageTableListStartIdx = startIdx
   },
   setStudyListEmpty(state) {
     state.studyList = []
@@ -130,7 +145,7 @@ const getters = {
 const actions = {
   async getStudyListFromServer ({commit}, {listParam}) {
     console.log('studyParam is ', listParam)
-    let [err, ret] = await util.asyncCall(studyApi.getStudyList({
+    const [err, ret] = await util.asyncCall(studyApi.getStudyList({
       studyListParam: listParam,
     }))
     if (err) {
@@ -150,6 +165,74 @@ const actions = {
       commit('setStudyList', {studyList})
       commit('setStudyListCnt', {cnt: studyListCnt})
       commit('setStudyListStartCnt', {startCnt: listParam.page_index})
+      return Promise.resolve(true)
+    }
+  },
+  async getStudyDetailFromServer ({commit, state}) {
+    const param = {
+      experiment_id: state.currentExpId,
+    }
+    console.log('param is ', param, 'state is  ', state)
+    const [err, ret] = await util.asyncCall(studyApi.getStudyDetail(param))
+    if (err) {
+      console.log(err)
+      return Promise.reject(err)
+    } else {
+      const studyDetail = {
+        title: ret.data.experiment_info.title,
+        duration: ret.data.experiment_info.experiment_time.toString() + '分钟',
+        price: '$30',
+        detail: ret.data.experiment_info.description,
+      }
+      commit('setStudyDetail', {studyDetail})
+      return Promise.resolve(true)
+    }
+  },
+  async getRecordListFromServer({state, commit}, {page_index, page_size}) {
+    const [err, ret] = await util.asyncCall(studyApi.getRecordList({
+      experiment_id: state.currentExpId,
+      page_index,
+      page_size,
+    }))
+    if (err) {
+      console.log(err)
+      return Promise.reject(err)
+    } else {
+      console.log(ret.data)
+      const manageTableList = ret.data.subject_record_list.map((item) => {
+        return {
+          recordId: item.subject_record_id,
+          name: item.userInfo.user_name,
+          tagType: tagMap.get(item.state) || '',
+          startTime: '2023-01-01 00:00:00',
+          usedTime: util.parseDuration(item.time_taken),
+          progress: '50%',
+          status: statusMap.get(item.state) || '未知'
+        }
+      })
+      commit('setManageTableList', {manageTableList})
+      commit('setManageTableListCnt', {cnt: ret.data.total_num})
+      commit('setManageTableListStartIdx', {startIdx: page_index})
+      return Promise.resolve(true)
+    }
+  },
+  async getManageInfoFromServer({state, commit}) {
+    const [err, ret] = await util.asyncCall(studyApi.getStudyDetail({
+      experiment_id: state.currentExpId,
+    }))
+    if (err) {
+      console.log(err)
+      return Promise.reject(err)
+    } else {
+      console.log(ret.data)
+      const manageInfo = {
+        progress: 30.00,
+        publishTime: ret.data.experiment_info.create_time,
+        eligible: ret.data.experiment_info.participant_num.toString(),
+        reward: '$' + ret.data.experiment_info.price,
+        otherInfo: '无',
+      }
+      commit('setManageInfo', {manageInfo})
       return Promise.resolve(true)
     }
   }
