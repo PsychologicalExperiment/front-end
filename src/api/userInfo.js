@@ -43,9 +43,16 @@ const logout = () => {
   })
 }
 
+const checkLogin = () => {
+  return axios.post('/api/checklogin', null, {
+    withCredentials: true
+  })
+}
+
 export default{
   register,
   loginApi,
   sendVerifyCode,
   logout,
+  checkLogin,
 }

@@ -40,11 +40,14 @@ import { SwitchButton } from '@element-plus/icons-vue';
 import userApi from "../../api/userInfo";
 import util from '../../util/util.js';
 import { ElMessage } from 'element-plus';
+import { useRouter } from "vue-router";
+import { ROUTE_NAME_HOME } from "../../constants/global";
 
 export default {
   name: "userInfo",
   setup() {
     const store = useStore();
+    const router = useRouter();
     const userMsg = reactive({...store.state.userInfo})
     const clickLogout = async () => {
       const [err] = await util.asyncCall(userApi.logout())
@@ -57,6 +60,7 @@ export default {
         return
       }
       store.commit("userInfo/userLogout")
+      router.push({ name: ROUTE_NAME_HOME })
     } 
     return {
       userMsg,

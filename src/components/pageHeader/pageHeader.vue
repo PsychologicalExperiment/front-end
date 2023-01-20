@@ -55,8 +55,11 @@
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { computed, watch, ref, onMounted } from "vue";
+import { ElMessage } from 'element-plus';
 import { ROUTE_NAME_LOGIN, ROUTE_NAME_HOME } from "../../constants/global";
 import userInfo from './userInfo.vue'
+import userApi from "../../api/userInfo";
+import util from '../../util/util.js';
 
 export default {
   components: {
@@ -112,6 +115,26 @@ export default {
         name: menuItem.routerName,
       });
     };
+    const loginUsingCookie = async () => {
+      const [err, ret] = await util.asyncCall(userApi.checkLogin())
+      if (err) {
+        console.log(err)
+        ElMessage({
+            showClose: true,
+            message:'网络错误，请检查您的网络情况',
+            type: 'error',
+        })
+        return
+      }
+      console.log(ret)
+      store.commit("userInfo/userLogin", {
+        email: ret.data.email,
+        phoneNumber: ret.data.phone_number,
+        userName: ret.data.user_name,
+        genderType: ret.data.gender,
+        roleType: ret.data.user_type
+      })
+    }
     watch(
       navMenuList,
       () => {
@@ -124,6 +147,7 @@ export default {
         loginButtonMarginTop.value = window.innerHeight * 0.02 + "px";
         loginButtonMarginRight.value = window.innerWidth * 0.03 + "px";
       };
+      loginUsingCookie()
     });
     return {
       isLogin,
