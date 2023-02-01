@@ -111,14 +111,15 @@ export default {
       }
     });
     const clickMenuItem = (menuItem) => {
-      router.push({
-        name: menuItem.routerName,
-      });
+      if (!store.state.userInfo.isLogin && menuItem.routerName !== ROUTE_NAME_HOME) {
+        router.push({ name: ROUTE_NAME_LOGIN })
+      } else {
+        router.push({ name: menuItem.routerName })
+      }
     };
     const loginUsingCookie = async () => {
       const [err, ret] = await util.asyncCall(userApi.checkLogin())
       if (err) {
-        console.log(err)
         ElMessage({
             showClose: true,
             message:'网络错误，请检查您的网络情况',
@@ -126,7 +127,9 @@ export default {
         })
         return
       }
-      console.log(ret)
+      if (ret.data.code !== 0) {
+        return
+      }
       store.commit("userInfo/userLogin", {
         email: ret.data.email,
         phoneNumber: ret.data.phone_number,

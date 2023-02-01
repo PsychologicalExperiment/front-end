@@ -38,11 +38,11 @@ export default {
   },
   methods: {
     async loginHandle() {
-      let loginParam = {
+      const loginParam = {
         account: this.formData[0].value,
         password: md5(this.formData[1].value),
       }
-      let [err, ret] = await util.asyncCall(userApi.loginApi(loginParam))
+      const [err, ret] = await util.asyncCall(userApi.loginApi(loginParam))
       if (err) {
         const statusCode = err.response.status
         const errMsg = err.response.data.errMsg 
@@ -70,7 +70,6 @@ export default {
         }
         this.$store.commit("userInfo/userLogin", mutationParam)
         this.$router.push({ name: ROUTE_NAME_HOME })
-        console.log(document.cookie)
       }
     }
   },

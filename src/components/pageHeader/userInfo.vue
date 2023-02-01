@@ -54,7 +54,7 @@ export default {
       if (err) {
         ElMessage({
           showClose: true,
-          message: '账号或密码错误，请重试',
+          message: '网络错误，请重试',
           type: 'error',
         })
         return

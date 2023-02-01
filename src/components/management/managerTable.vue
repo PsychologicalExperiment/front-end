@@ -24,17 +24,26 @@
         </el-tag>
       </template>
     </el-table-column>
-    <el-table-column label="操作">
-      <template>
-        <el-icon>
-          <Message />
-        </el-icon>
-        <el-icon>
-          <Check />
-        </el-icon>
-        <el-icon>
-          <Close />
-        </el-icon>
+    <el-table-column label="操作" align="center">
+      <template #default="scope">
+        <el-button
+          :icon="Message"
+          :circle="true" 
+          @click="handleMsgButton(scope.$index, scope.row)"
+        >
+        </el-button>
+        <el-button
+          :icon="Check"
+          :circle="true" 
+          @click="handleCheckButton(scope.$index, scope.row)"
+        >
+        </el-button>
+        <el-button
+          :icon="Close"
+          :circle="true" 
+          @click="handleCloseButton(scope.$index, scope.row)"
+        >
+        </el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -42,11 +51,32 @@
 
 <script>
 
+import { Message, Check, Close } from '@element-plus/icons-vue';
+
 export default {
   name: "managerTable",
   props: {
     tableData: {
       type: Array,
+    }
+  },
+  setup() {
+    const handleMsgButton = (index, row) => {
+      console.log(index, row)
+    }
+    const handleCheckButton = (index, row) => {
+      console.log(index, row)
+    }
+    const handleCloseButton = (index, row) => {
+      console.log(index, row)
+    }
+    return {
+      Message,
+      Check,
+      Close,
+      handleMsgButton,
+      handleCheckButton,
+      handleCloseButton,
     }
   }
 }
