@@ -80,7 +80,13 @@
                   <el-button class="op-button">联系研究员</el-button>
                 </div>
                 <div class="op-button-wrapper">
-                  <el-button class="op-button" color="#F1D160">去预约</el-button>
+                  <el-button 
+                    class="op-button" 
+                    color="#F1D160"
+                    @click="joinExp"
+                  >
+                    参加实验
+                  </el-button>
                 </div>
               </div>
             </div>
@@ -104,10 +110,10 @@ export default {
       duration: '',
       price: '',
       detail: '',
+      url: '',
     })
     const store = useStore();
     const getExpData = async() => {
-      console.log('getExpData')
       const [err] = await util.asyncCall(
         store.dispatch('studyInfo/getStudyDetailFromServer')
       )
@@ -119,6 +125,10 @@ export default {
       expData.duration = store.state.studyInfo.studyDetail.duration
       expData.price = store.state.studyInfo.studyDetail.price
       expData.detail = store.state.studyInfo.studyDetail.detail
+      expData.url = store.state.studyInfo.studyDetail.url
+    }
+    const joinExp = () => {
+      window.open(expData.url)
     }
     const detailIconSize = ref(Math.round(window.innerWidth * 0.025))
     const briefContentFontSize = ref(window.innerWidth * 0.00046 + "em");
@@ -137,7 +147,8 @@ export default {
       expData,
       detailIconSize,
       briefContentFontSize,
-      briefTitleFontSize
+      briefTitleFontSize,
+      joinExp
     }
   }
 }

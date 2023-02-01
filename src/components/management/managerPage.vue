@@ -156,6 +156,7 @@ export default {
       }
       pageData.manageTableList = store.state.studyInfo.manageTableList
       pageNum.value = Math.ceil(store.state.studyInfo.manageTableListCnt / MANAGE_TABLE_ROW_NUM)
+      pageData.studyBasicInfo = store.state.studyInfo.manageInfo
     }
     const loadStudyBasicInfo = async () => {
       const [err] = await util.asyncCall(
@@ -168,9 +169,9 @@ export default {
     }
     const navs = store.getters['pageInfo/getNavOptionsByRole'](store.state.userInfo.role);
     onMounted(() => {
-      store.commit("pageInfo/setNavOptionOptionList", navs);
-      loadTableDatas()
+      store.commit("pageInfo/setNavOptionOptionList", navs)
       loadStudyBasicInfo()
+      loadTableDatas()
     });
     return {
       pageData,

@@ -46,7 +46,8 @@ const state = {
     title: '',
     duration: '',
     price: '',
-    detail: ''
+    detail: '',
+    url: '',
   },
   manageInfo: {
     progress: 0.00,
@@ -181,8 +182,9 @@ const actions = {
       const studyDetail = {
         title: ret.data.experiment_info.title,
         duration: ret.data.experiment_info.experiment_time.toString() + '分钟',
-        price: '$30',
+        price: '$' + ret.data.experiment_info.price.toString(),
         detail: ret.data.experiment_info.description,
+        url: ret.data.experiment_info.url,
       }
       commit('setStudyDetail', {studyDetail})
       return Promise.resolve(true)
@@ -210,9 +212,14 @@ const actions = {
           status: statusMap.get(item.state) || '未知'
         }
       })
+      const manageInfo = {
+        ...state.manageInfo,
+        progress: ret.data.finish_pcts
+      }
       commit('setManageTableList', {manageTableList})
       commit('setManageTableListCnt', {cnt: ret.data.total_num})
       commit('setManageTableListStartIdx', {startIdx: page_index})
+      commit('setManageInfo', {manageInfo})
       return Promise.resolve(true)
     }
   },
@@ -226,7 +233,7 @@ const actions = {
     } else {
       console.log(ret.data)
       const manageInfo = {
-        progress: 30.00,
+        progress: 0.00,
         publishTime: ret.data.experiment_info.create_time,
         eligible: ret.data.experiment_info.participant_num.toString(),
         reward: '$' + ret.data.experiment_info.price,

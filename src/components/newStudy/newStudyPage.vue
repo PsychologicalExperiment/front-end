@@ -81,9 +81,16 @@ export default {
         key: "participant_num",
       },
       {
+        type: "normalInput",
+        value: "",
+        label: "5、实验链接",
+        placeholder: "请输入您的实验链接",
+        key: "experiment_url",
+      },
+      {
         type: "textareaInput",
         value: "",
-        label: "5、描述参与者将在本研究中做什么",
+        label: "6、描述参与者将在本研究中做什么",
         placeholder: "请输入描述",
         key: "desc",
       }
@@ -93,10 +100,11 @@ export default {
       let [err] = await util.asyncCall(studyApi.createStudy(
         {
           title: studyData[0].value,
-          description: studyData[4].value,
+          description: studyData[5].value,
           experiment_time: Number(studyData[1].value),
           participant_num: Number(studyData[3].value),
-          price: studyData[2].value
+          price: studyData[2].value,
+          url: studyData[4].value,
         }
       ))
       if (err) {
@@ -142,7 +150,7 @@ export default {
 }
 #submit-study-wrapper{
   position: relative;
-  top: 20%;
+  top: 18%;
   width: 70%;
   left: 15%;
   top: 5%;
