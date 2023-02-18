@@ -10,6 +10,14 @@ import {
 import studyApi from "../../api/studyInfo"
 import util from '../../util/util.js'
 
+const stausTransferMap = new Map([
+  [0, STATE_RECORD_INIT],
+  [1, STATE_RECORD_FINISHED],
+  [2, STATE_RECORD_APPROVED],
+  [3, STATE_RECORD_TIMEOUT],
+  [4, STATE_RECORD_RETURNED],
+])
+
 const tagMap = new Map([
   [STATE_RECORD_INIT, ''],
   [STATE_RECORD_FINISHED, 'warning'],
@@ -93,7 +101,12 @@ const mutations = {
     state.studyList = []
     state.studyListCnt = 0
     state.studyListStartCnt = 0
-  }
+  },
+  setManageTableItemStatus(state, {table_list_idx, status}) {
+    const statusStr = stausTransferMap.get(status) || ''
+    state.manageTableList[table_list_idx].status = statusMap.get(statusStr) || '未知'
+    state.manageTableList[table_list_idx].tagType = tagMap.get(statusStr) || ''
+  },
 }
 
 const getters = {
@@ -145,7 +158,6 @@ const getters = {
 
 const actions = {
   async getStudyListFromServer ({commit}, {listParam}) {
-    console.log('studyParam is ', listParam)
     const [err, ret] = await util.asyncCall(studyApi.getStudyList({
       studyListParam: listParam,
     }))
@@ -204,12 +216,13 @@ const actions = {
       const manageTableList = ret.data.subject_record_list.map((item) => {
         return {
           recordId: item.subject_record_id,
-          name: item.userInfo.user_name,
+          name: item.userInfo ? item.userInfo.user_name : '',
           tagType: tagMap.get(item.state) || '',
           startTime: '2023-01-01 00:00:00',
           usedTime: util.parseDuration(item.time_taken),
           progress: '50%',
-          status: statusMap.get(item.state) || '未知'
+          status: statusMap.get(item.state) || '未知',
+          uid: item.userInfo ? item.userInfo.uid: ''
         }
       })
       const manageInfo = {
@@ -242,7 +255,28 @@ const actions = {
       commit('setManageInfo', {manageInfo})
       return Promise.resolve(true)
     }
-  }
+  },
+  async updateRecordToServer({state, commit}, {table_list_idx, status}) {
+    const subject_record_id = state.manageTableList[table_list_idx].recordId
+    const user_id = state.manageTableList[table_list_idx].uid
+    const [err, ret] = await util.asyncCall(studyApi.updateRecordState({
+      subject_record_id,
+      status,
+      user_id 
+    }))
+    if (err) {
+      console.log(err)
+      return Promise.reject(err)
+    } else {
+      console.log(ret.data)
+      if (ret.data.message !== 'Success') {
+        return Promise.reject("rsp not ok, message: " + ret.message)
+      }
+      commit('setManageTableItemStatus', {table_list_idx, status})
+      console.log('set success')
+      return Promise.resolve(true)
+    }
+  },
 }
 
 export default {

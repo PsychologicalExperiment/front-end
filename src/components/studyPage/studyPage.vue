@@ -7,11 +7,10 @@
           <el-date-picker
             class="study-page-picker"
             v-model="dateVal"
-            type="monthrange"
-            range-separator="To"
-            start-placeholder="Start date"
-            end-placeholder="End date"
-            :shortcuts=shortcuts
+            type="datetime"
+            placeholder="请选择最后日期"
+            format="YYYY-MM-DD"
+            value-format="X"
           />
         </div>
         <span class="study-page-date-header" :style="{fontSize: headerFontSize}">实验费用: </span>
@@ -25,6 +24,15 @@
             />
           </el-select>
         </div>
+        <el-button 
+          type="primary" 
+          :icon="Search" 
+          class="search-button"
+          color="#F1D160"
+          @click="handleSearch"
+        >
+          查询
+        </el-button>
       </div>
     </div>
     <div id="study-page-body">
@@ -54,7 +62,8 @@
         class="study-page-pagination"
         background 
         layout="prev, pager, next" 
-        :page-count=pageNum
+        :page-count="pageNum"
+        :current-page="currentPage"
         @current-change="paginationClick"
       />
     </div>
@@ -63,7 +72,8 @@
 
 <script>
 import { ref, reactive, onMounted } from 'vue'
-import { useStore } from "vuex";
+import { useStore } from "vuex"
+import { Search } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import studyItem from './studyItem.vue'
 import util from '../../util/util.js'
@@ -80,54 +90,26 @@ export default {
     const priceVal = ref('')
     const cardSpanLen = ref(6);
     const pageNum = ref(0)
+    const currentPage = ref(1)
     const headerFontSize = ref(window.innerWidth * 0.0006 + "em");
     const priceOptions = [
       {
-        label: '0-50',
-        value: 'zero_to_fifty',
+        label: '> 50',
+        value: '50',
       },
       {
-        label: '51-100',
-        value: 'fifty_to_hundred',
+        label: '> 100',
+        value: '100',
       },
       {
-        label: '>100',
-        value: 'larger_than_hundred'
+        label: '> 200',
+        value: '200'
       }
     ]
     const rowData = reactive({
       firstRow: [],
       secondRow: []
     })
-    const shortcuts = [
-      {
-        text: 'Last week',
-        value: () => {
-          const end = new Date()
-          const start = new Date()
-          start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-          return [start, end]
-        },
-      },
-      {
-        text: 'Last month',
-        value: () => {
-          const end = new Date()
-          const start = new Date()
-          start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-          return [start, end]
-        },
-      },
-      {
-        text: 'Last 3 months',
-        value: () => {
-          const end = new Date()
-          const start = new Date()
-          start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-          return [start, end]
-        },
-      },
-    ]
     const store = useStore();
     const getRows = async () => {
       console.log('getRows')
@@ -151,33 +133,58 @@ export default {
       rowData.secondRow = rows.secondRow
     };
     const paginationClick = async (pageNum) => {
-      console.log(pageNum)
       const {start, len} = store.getters['studyInfo/getCurrentStudyPageRange']
-      console.log(start, len)
       if (pageNum >= start && pageNum < start + len) {
-        console.log('in cache')
         const rows = store.getters['studyInfo/getStudyRowsByPageId'](pageNum)
         rowData.firstRow = rows.firstRow
         rowData.secondRow = rows.secondRow
       } else {
         const batchNum = STUDY_RUNNING_CACHE_NUM / STUDY_RUNNING_ITEM_NUM
         const startIdx = (Math.ceil(pageNum / batchNum) - 1) * STUDY_RUNNING_CACHE_NUM
-        console.log('out cache', batchNum, startIdx)
+        const end_time = dateVal.value ? Number(dateVal.value) : 0
+        const min_price = priceVal.value ? Number(priceVal.value) : 0
         const [err] = await util.asyncCall(
           store.dispatch('studyInfo/getStudyListFromServer', {
             listParam: {
               page_index: startIdx,
               page_size: STUDY_RUNNING_CACHE_NUM,
+              end_time,
+              min_price
           }})
         )
         if (err) {
-          console.log(err)
           ElMessageBox.alert('网络错误' + ' ,请刷新页面', '网络错误')
         }
         const rows = store.getters['studyInfo/getStudyRowsByPageId'](pageNum)
         rowData.firstRow = rows.firstRow
         rowData.secondRow = rows.secondRow
       }
+      currentPage.value = pageNum
+    }
+    const handleSearch = async () => {
+      const end_time = dateVal.value ? Number(dateVal.value) : 0
+      const min_price = priceVal.value ? Number(priceVal.value) : 0
+      const listParam = {
+        page_index: 0,
+        page_size: STUDY_RUNNING_CACHE_NUM,
+        end_time,
+        min_price,
+      }
+      const [err] = await util.asyncCall(
+        store.dispatch('studyInfo/getStudyListFromServer',
+        {
+          listParam,
+        })
+      )
+      if (err) {
+        console.log(err)
+        ElMessageBox.alert('网络错误' + ' ,请刷新页面', '网络错误')
+      }
+      const rows = store.getters['studyInfo/getStudyRowsByPageId'](1)
+      pageNum.value = Math.ceil(store.state.studyInfo.studyListCnt / STUDY_RUNNING_ITEM_NUM)
+      rowData.firstRow = rows.firstRow
+      rowData.secondRow = rows.secondRow
+      currentPage.value = 1
     }
     const navs = store.getters['pageInfo/getNavOptionsByRole'](store.state.userInfo.role);
     onMounted(() => {
@@ -192,11 +199,13 @@ export default {
       priceOptions,
       priceVal,
       headerFontSize,
-      shortcuts,
       rowData,
       cardSpanLen,
       pageNum,
       paginationClick,
+      Search,
+      handleSearch,
+      currentPage,
     };
   }
 }

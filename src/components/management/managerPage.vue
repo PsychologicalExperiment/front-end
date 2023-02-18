@@ -14,12 +14,15 @@
         <el-button id="near-month">近30天</el-button>
         <div id="manager-date-picker">
           <el-date-picker
-            v-model="dateVal"
-            type="monthrange"
+            v-model="pageData.dateVal"
+            type="datetimerange"
             range-separator="To"
             start-placeholder="Start date"
             end-placeholder="End date"
             :shortcuts=shortcuts
+            @change="datePickerChange"
+            format="YYYY-MM-DD"
+            value-format="x"
           />
         </div>
       </div>
@@ -64,7 +67,7 @@
       </div>
     </div>
     <div id="manager-table">
-      <manager-table :tableData="pageData.manageTableList"></manager-table>
+      <manager-table :tableData="manageTableList"></manager-table>
     </div>
   </div>
   <div id="manager-page-bottom">
@@ -73,6 +76,7 @@
       background 
       layout="prev, pager, next" 
       :page-count=pageNum
+      @current-change="paginationClick"
     />
   </div>
 </template>
@@ -82,10 +86,9 @@ import managerHead from './managerHead.vue'
 import managerTable from './managerTable.vue'
 import util from '../../util/util.js';
 import {
-  MANAGE_TABLE_CACHE_NUM,
   MANAGE_TABLE_ROW_NUM,
 } from '../../constants/global'
-import { onMounted, ref, reactive } from 'vue'
+import { onMounted, ref, reactive, computed } from 'vue'
 import { useStore } from "vuex";
 import { Search } from '@element-plus/icons-vue'
 
@@ -96,7 +99,6 @@ export default {
   },
   setup() {
     const activeName = ref('unpaid')
-    const dateVal = ref('')
     const pageNum = ref(0)
     const shortcuts = [
       {
@@ -135,8 +137,9 @@ export default {
         reward: '',
         otherInfo: ''
       },
-      manageTableList: []
+      dateVal: [],
     })
+    const manageTableList = computed(() => store.state.studyInfo.manageTableList)
     const checkedGenders = ref([])
     const checkedDurations = ref([])
     const genders = ['男性', '女性']
@@ -149,12 +152,11 @@ export default {
       const [err] = await util.asyncCall(
         store.dispatch('studyInfo/getRecordListFromServer', {
           page_index: 0,
-          page_size: MANAGE_TABLE_CACHE_NUM,
+          page_size: MANAGE_TABLE_ROW_NUM,
       }))
       if (err) {
         console.log(err)
       }
-      pageData.manageTableList = store.state.studyInfo.manageTableList
       pageNum.value = Math.ceil(store.state.studyInfo.manageTableListCnt / MANAGE_TABLE_ROW_NUM)
       pageData.studyBasicInfo = store.state.studyInfo.manageInfo
     }
@@ -167,6 +169,21 @@ export default {
       }
       pageData.studyBasicInfo = store.state.studyInfo.manageInfo
     }
+    const paginationClick = async (pageNum) => {
+      console.log(pageNum)
+      const page_index = MANAGE_TABLE_ROW_NUM * (pageNum - 1)
+      const [err] = await util.asyncCall(
+        store.dispatch('studyInfo/getRecordListFromServer', {
+          page_index,
+          page_size: MANAGE_TABLE_ROW_NUM,
+      }))
+      if (err) {
+        console.log(err)
+      }
+    }
+    const datePickerChange = () => {
+      console.log(pageData.dateVal[0], pageData.dateVal[1])
+    }
     const navs = store.getters['pageInfo/getNavOptionsByRole'](store.state.userInfo.role);
     onMounted(() => {
       store.commit("pageInfo/setNavOptionOptionList", navs)
@@ -177,7 +194,6 @@ export default {
       pageData,
       activeName,
       tabClick,
-      dateVal,
       checkedGenders,
       genders,
       shortcuts,
@@ -185,6 +201,9 @@ export default {
       durations,
       Search,
       pageNum,
+      paginationClick,
+      manageTableList,
+      datePickerChange
     }
   }
 }

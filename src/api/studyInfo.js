@@ -63,9 +63,24 @@ const getRecordList = ({experiment_id, page_index, page_size}) => {
   })
 }
 
+const updateRecordState = ({subject_record_id, status, user_id}) => {
+  const param = JSON.stringify({
+    subject_record_id,
+    state: status,
+    user_id,
+  })
+  return axios.post('/api/update_record', param, {
+    headers: {
+      'content-type': 'application/json',
+    },
+    withCredentials: true
+  })
+}
+
 export default{
   getStudyList,
   createStudy,
   getStudyDetail,
   getRecordList,
+  updateRecordState,
 }
